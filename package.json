@@ -33,7 +33,7 @@
     "sequelize": "^6.27.0",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.1",
-    "tslib": "^2.6.2",
+    "tslib": "^2.7.0",
     "typedi": "^0.10.0",
     "winston": "^3.8.2",
     "winston-daily-rotate-file": "^4.7.1"
