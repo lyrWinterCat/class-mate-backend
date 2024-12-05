@@ -21,19 +21,16 @@ const options = {
     servers: [
       //https 테스트
       { url: `http://localhost:5000` },
-      //원래소스
-      // { url: `http://localhost:${global.port}` },
-
-      //원래주석
-      // { url: `http://localhost:${global.port}/api` },
+      //ec2 주소
+      // { url: `http://43.203.246.98:5000` },
     ],
   },
   apis: [
-    "./src/api/routes/*.ts",
-    "./src/api/routes/*/*.ts",
-    "./src/api/routes/*/*/*.ts",
-    "./src/api/routes/*/*/*/*.ts",
-    "./src/api/routes/*/*/*/*/*.ts",
+    "./src/routes/*.ts",
+    "./src/routes/*/*.ts",
+    "./src/routes/*/*/*.ts",
+    "./src/routes/*/*/*/*.ts",
+    "./src/routes/*/*/*/*/*.ts",
   ],
 };
 

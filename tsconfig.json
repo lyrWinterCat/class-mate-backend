@@ -3,7 +3,7 @@
       "lib": [
         "es6"
       ],
-      "target": "es6",
+      "target": "es2017",
       "module": "commonjs",
       "typeRoots": ["node_modules/@types"],
       "moduleResolution": "node",

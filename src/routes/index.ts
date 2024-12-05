@@ -1,9 +1,20 @@
 import {Router} from 'express'
+import cors from 'cors'
 import apiRoutes from './route/api/index'
 import userRoutes from './route/user/index'
 import { swaggerUI, specs } from '../loaders/swagger';
+import { or } from 'sequelize';
+import { all } from 'axios';
 
 const router = Router();
+
+const corsOptions = {
+  origin: "*",
+  methods: ['GET','POST','PUT','DELETE','OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+}
+
+router.use(cors(corsOptions));
 
 router.get("/", (req, res) => {
   try {

@@ -3,7 +3,7 @@ import express from 'express';
 import cookieParser from 'cookie-parser';
 import path from 'path'
 import config from '../config/index'
-import routes from '../routes/route/api'
+import routes from '../routes/index'
 import cors from 'cors'
 import hpp from 'hpp'
 

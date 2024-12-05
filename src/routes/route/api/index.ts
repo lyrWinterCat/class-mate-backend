@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import apitestRouter from './apitest/index';
+import naverLoginRouter from './naverLogin/index';
 
 const router = Router();
 
@@ -11,6 +11,6 @@ router.post("/", async (req: Request, res: Response) => {
   }
 });
 
-router.use("/", apitestRouter);
+router.use("/", naverLoginRouter);
 
 export default router;
