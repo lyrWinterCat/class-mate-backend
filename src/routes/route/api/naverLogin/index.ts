@@ -4,10 +4,12 @@ import {User, mapRowToUser, handleUserLogin } from './../../../../models/user';
 require('dotenv').config();
 const router = Router();
 
-router.get("/naverLogin", async (req: Request, res: Response) => {
+router.post("/naverLogin", async (req: Request, res: Response) => {
   const clientId = process.env.NAVER_CLIENT_ID;
   const clientSecret = process.env.NAVER_CLIENT_SECRET;
-  const naverCode = 'JGW0C8Bf0MxSxf4UfK';
+  const naverCode = req.body.code;
+  // const naverCode = 'JfiVqZ8eVQUzvNMa9R'
+  console.log(naverCode);
 
   try {
     // 네이버 API에서 엑세스 토큰 가져오기
@@ -41,15 +43,22 @@ router.get("/naverLogin", async (req: Request, res: Response) => {
     try {
       if (users.length === 0) {
         res.status(200).json({ 
-          data: profile,refreshToken,
-          status: {code: 200, message: "get userInfo success, go to signup page"},
-          meta: {redirect: "/signup"},
+          data: {
+            profile: profile,
+            refreshToken: refreshToken,
+            redirect: "/signup",
+            isSignup: false 
+          },
+          status: { code: 200, message: "get userInfo success, go to signup page" }
         });
       } else {
         res.status(200).json({ 
-          data: refreshToken,
-          status: {code: 200, message: "already signup, go to login-sucess page"},
-          meta: {redirect: "/login-main"},
+          data: {
+            refreshToken: refreshToken,
+            redirect: "/login-main",
+            isSignup: true // 또는 필요한 값을 여기에 넣습니다.
+          },
+          status: { code: 200, message: "already signup, go to login-sucess page" }
         });
       }
     } catch (error) {

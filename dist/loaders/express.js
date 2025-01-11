@@ -6,7 +6,7 @@ const express_1 = (0, tslib_1.__importDefault)(require("express"));
 const cookie_parser_1 = (0, tslib_1.__importDefault)(require("cookie-parser"));
 const path_1 = (0, tslib_1.__importDefault)(require("path"));
 const index_1 = (0, tslib_1.__importDefault)(require("../config/index"));
-const api_1 = (0, tslib_1.__importDefault)(require("../routes/route/api"));
+const index_2 = (0, tslib_1.__importDefault)(require("../routes/index"));
 const cors_1 = (0, tslib_1.__importDefault)(require("cors"));
 const hpp_1 = (0, tslib_1.__importDefault)(require("hpp"));
 exports.default = (app) => {
@@ -27,6 +27,6 @@ exports.default = (app) => {
     app.use(express_1.default.static(path_1.default.join(path_1.default.resolve(), '..', 'public')));
     app.use((0, hpp_1.default)());
     //라우터 연결
-    app.use(index_1.default.api.prefix, api_1.default);
+    app.use(index_1.default.api.prefix, index_2.default);
 };
 //# sourceMappingURL=express.js.map

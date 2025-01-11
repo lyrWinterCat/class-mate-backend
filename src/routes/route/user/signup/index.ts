@@ -9,6 +9,7 @@ import pool from '../../../../loaders/db'
 import { RowDataPacket } from 'mysql2';
 import { error } from 'console';
 
+
 // 라우터 테스트
 router.post("/", async (req: Request, res: Response) => {
   try {

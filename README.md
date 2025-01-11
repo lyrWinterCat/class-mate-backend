@@ -98,10 +98,10 @@ MYSQL_DATABASE = test <br>
 
 ## postman 테스트
 > 기본 실행
-- get / http://localhost:6000
+- get / http://localhost:5000
 
 > src/api/routes/user/signin에 대한 테스트 접속
-- post / http://localhost:6000/user/signin
+- post / http://localhost:5000/user/signin
 
 > DB 연결 테스트
-- post / http://localhost:6000/user/test 
+- post / http://localhost:5000/user/test 

@@ -2,10 +2,17 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const tslib_1 = require("tslib");
 const express_1 = require("express");
+const cors_1 = (0, tslib_1.__importDefault)(require("cors"));
 const index_1 = (0, tslib_1.__importDefault)(require("./route/api/index"));
 const index_2 = (0, tslib_1.__importDefault)(require("./route/user/index"));
 const swagger_1 = require("../loaders/swagger");
 const router = (0, express_1.Router)();
+const corsOptions = {
+    origin: "*",
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+};
+router.use((0, cors_1.default)(corsOptions));
 router.get("/", (req, res) => {
     try {
         res.status(200).send({ message: "server-client connect success" });
