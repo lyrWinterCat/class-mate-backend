@@ -28,6 +28,9 @@ router.post("/test", async (req, res) => {
     }
 });
 exports.default = router;
+// 회원가입 페이지에서 프로필 요청
+router.post("/profile", async (req, res) => {
+});
 // 회원가입 라우터
 router.post("/signup", async (req, res) => {
     const { user_email, user_name, birth_date, school1_id, school1_name, school1_type, school1_address, profile_path } = req.body.data; // school2, 3이 있을 경우 추가

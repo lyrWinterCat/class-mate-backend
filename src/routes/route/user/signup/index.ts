@@ -9,7 +9,6 @@ import pool from '../../../../loaders/db'
 import { RowDataPacket } from 'mysql2';
 import { error } from 'console';
 
-
 // 라우터 테스트
 router.post("/", async (req: Request, res: Response) => {
   try {
@@ -30,6 +29,14 @@ router.post("/test", async (req: Request, res: Response) => {
   }
 });
 export default router;
+
+// 회원가입 페이지에서 프로필 요청
+router.post("/profile", async (req: Request, res: Response) => {
+  
+});
+
+
+
 
 // 회원가입 라우터
 router.post("/signup", async (req: Request, res: Response) => {
