@@ -58,7 +58,7 @@ exports.insertUserInfo = insertUserInfo;
 // 학교 정보를 데이터베이스에 추가하는 함수
 const insertSchoolInfo = async (school) => {
     const { school_id, school_name, school_type } = school;
-    await db_1.default.query('INSERT INTO school_info (school_id, school_name, school_type) VALUES (?, ?, ?, ?)', [
+    await db_1.default.query('INSERT INTO school_info (school_id, school_name, school_type) VALUES (?, ?, ?)', [
         school_id,
         school_name,
         school_type,
