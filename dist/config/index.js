@@ -3,8 +3,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const tslib_1 = require("tslib");
 const dotenv_1 = require("dotenv");
 const path_1 = (0, tslib_1.__importDefault)(require("path"));
-// const env_dir = `../env/.env.${process.env.NODE_ENV || 'development'}`
-// config({path: path.join(__dirname,env_dir)})
 const envPath = path_1.default.join(__dirname, '../../src/env/.env');
 const result = (0, dotenv_1.config)({ path: envPath });
 if (result.error) {
@@ -37,5 +35,9 @@ exports.default = {
         },
         logging: process.env.MYSQL_LOGGING
     },
+    ssl: {
+        keyPath: process.env.SSL_KEY_PATH,
+        certPath: process.env.SSL_CERT_PATH,
+    }
 };
 //# sourceMappingURL=index.js.map

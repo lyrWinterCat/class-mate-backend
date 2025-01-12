@@ -1,8 +1,6 @@
 import {config} from 'dotenv'
 import path from "path";
 
-// const env_dir = `../env/.env.${process.env.NODE_ENV || 'development'}`
-// config({path: path.join(__dirname,env_dir)})
 const envPath = path.join(__dirname, '../../src/env/.env');
 const result = config({ path: envPath });
 
@@ -37,5 +35,9 @@ export default {
         },
         logging:process.env.MYSQL_LOGGING
     },
+    ssl: {
+        keyPath: process.env.SSL_KEY_PATH as string,
+        certPath: process.env.SSL_CERT_PATH as string,
+    }
 
 }
