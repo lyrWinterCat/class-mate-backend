@@ -45,12 +45,14 @@ const checkExistingSchool = async (schoolId) => {
 exports.checkExistingSchool = checkExistingSchool;
 // 사용자 정보를 데이터베이스에 추가하는 함수
 const insertUserInfo = async (user) => {
-    const { user_email, user_name, birth_date, school1_id, profile_path } = user;
-    await db_1.default.query('INSERT INTO user_info (user_email, user_name, birth_date, school1_id, profile_path) VALUES (?, ?, ?, ?, ?)', [
+    const { user_email, user_name, birth_date, school1_id, school2_id, school3_id, profile_path } = user;
+    await db_1.default.query('INSERT INTO user_info (user_email, user_name, birth_date, school1_id, school2_id, school3_id, profile_path) VALUES (?, ?, ?, ?, ?, ?, ?)', [
         user_email,
         user_name,
         birth_date,
         school1_id,
+        school2_id,
+        school3_id,
         profile_path,
     ]);
 };

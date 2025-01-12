@@ -5,11 +5,11 @@ export interface User {
     user_email: string;
     user_name: string;
     birth_date: Date;
-    school1_id: number;
-    school2_id: number;
-    school3_id: number;
-    profile_path: string;
-    chat_no: number;
+    school1_id: number | null;
+    school2_id: number | null;
+    school3_id: number | null;
+    profile_path: string | null;
+    chat_no: number | null;
   }
 
 export interface School {
@@ -67,12 +67,15 @@ export const checkExistingSchool = async (schoolId: number): Promise<boolean> =>
 
 // 사용자 정보를 데이터베이스에 추가하는 함수
 export const insertUserInfo = async (user: User): Promise<void> => {
-  const { user_email, user_name, birth_date, school1_id, profile_path } = user;
-  await pool.query('INSERT INTO user_info (user_email, user_name, birth_date, school1_id, profile_path) VALUES (?, ?, ?, ?, ?)', [
+  const { user_email, user_name, birth_date, school1_id, school2_id, school3_id, profile_path } = user;
+  
+  await pool.query('INSERT INTO user_info (user_email, user_name, birth_date, school1_id, school2_id, school3_id, profile_path) VALUES (?, ?, ?, ?, ?, ?, ?)', [
     user_email,
     user_name,
     birth_date,
     school1_id,
+    school2_id,
+    school3_id,
     profile_path,
   ]);
 };

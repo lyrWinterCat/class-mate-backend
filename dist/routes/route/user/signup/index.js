@@ -2,11 +2,11 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const tslib_1 = require("tslib");
 const express_1 = require("express");
+//db 연결
+const db_1 = (0, tslib_1.__importDefault)(require("../../../../loaders/db"));
 const user_1 = require("./../../../../models/user");
 require('dotenv').config();
 const router = (0, express_1.Router)();
-//db test
-const db_1 = (0, tslib_1.__importDefault)(require("../../../../loaders/db"));
 // 라우터 테스트
 router.post("/", async (req, res) => {
     try {
@@ -17,7 +17,7 @@ router.post("/", async (req, res) => {
     }
 });
 // DB 테스트
-router.post("/test", async (req, res) => {
+router.post("/dbConnect", async (req, res) => {
     try {
         const [rows] = await db_1.default.query('SELECT * FROM user_info');
         res.json(rows);
@@ -32,8 +32,41 @@ exports.default = router;
 router.post("/profile", async (req, res) => {
 });
 // 회원가입 라우터
+// front에서 schools 정보 배열로 묶어서 던져달라고 하기.
 router.post("/signup", async (req, res) => {
-    const { user_email, user_name, birth_date, school1_id, school1_name, school1_type, school1_address, profile_path } = req.body.data; // school2, 3이 있을 경우 추가
+    // 기존의 schoo1_id, schoo1_name, school1_type, school1_address 를 schools 배열로 묶어서 던져달라고 하기.
+    // school1, 2, 3 정보 모두 그냥 배열로 묶어서.
+    // 이런식으로 던져달라고 하기
+    // {
+    //   "data": {
+    //     "user_email": "example@example.com",
+    //     "user_name": "홍길동",
+    //     "birth_date": "2000-01-01",
+    //     "schools": [
+    //       {
+    //         "id": 1,
+    //         "name": "서울초등학교",
+    //         "type": "초등학교",
+    //         "address": "서울특별시 강남구"
+    //       },
+    //       {
+    //         "id": 2,
+    //         "name": "부산중학교",
+    //         "type": "중학교",
+    //         "address": "부산광역시 해운대구"
+    //       },
+    //       {
+    //         "id": 3,
+    //         "name": "대구고등학교",
+    //         "type": "고등학교",
+    //         "address": "대구광역시 수성구"
+    //       }
+    //     ],
+    //     "profile_path": "/path/to/profile/image.jpg"
+    //   }
+    // }
+    const { user_email, user_name, birth_date, schools, // schools 배열을 통해 school1, school2, school3 정보를 수신
+    profile_path } = req.body.data;
     // 요청 바디 검증
     const errors = [];
     if (!user_email || !/\S+@\S+\.\S+/.test(user_email)) {
@@ -45,38 +78,55 @@ router.post("/signup", async (req, res) => {
     if (!birth_date || isNaN(Date.parse(birth_date))) {
         errors.push({ message: 'Invalid date format' });
     }
-    if (!school1_id || typeof school1_id !== 'number') {
-        errors.push({ message: 'School ID 1 is required' });
+    // 학교 정보 검증
+    if (!Array.isArray(schools) || schools.length === 0) {
+        errors.push({ message: 'At least one school is required' });
     }
-    if (!school1_name) {
-        errors.push({ message: 'School Name 1 is required' });
-    }
-    if (!school1_type) {
-        errors.push({ message: 'School Type 1 is required' });
-    }
-    if (!school1_address) {
-        errors.push({ message: 'School Address 1 is required' });
+    else {
+        schools.forEach((school, index) => {
+            if (!school.id || typeof school.id !== 'number') {
+                errors.push({ message: `School ID ${index + 1} is required` });
+            }
+            if (!school.name) {
+                errors.push({ message: `School Name ${index + 1} is required` });
+            }
+            if (!school.type) {
+                errors.push({ message: `School Type ${index + 1} is required` });
+            }
+            if (!school.address) {
+                errors.push({ message: `School Address ${index + 1} is required` });
+            }
+        });
     }
     if (errors.length > 0) {
         return res.status(400).json({ errors });
     }
     try {
-        // 학교 정보가 DB에 존재하는지 확인
-        const schoolExists = await (0, user_1.checkExistingSchool)(school1_id);
-        // 학교 정보가 없다면 insertSchoolInfo 함수를 사용하여 추가
-        if (!schoolExists) {
-            await (0, user_1.insertSchoolInfo)({
-                school_id: school1_id,
-                school_name: school1_name,
-                school_type: school1_type,
-            });
+        const schoolIds = []; // 학교 ID를 저장할 배열
+        // 학교 정보 처리
+        for (const school of schools) {
+            const { id, name, type } = school;
+            // 학교 정보가 DB에 존재하는지 확인
+            const schoolExists = await (0, user_1.checkExistingSchool)(id);
+            // 학교 정보가 없다면 insertSchoolInfo 함수를 사용하여 추가
+            if (!schoolExists) {
+                await (0, user_1.insertSchoolInfo)({
+                    school_id: id,
+                    school_name: name,
+                    school_type: type,
+                });
+            }
+            // 학교 ID를 배열에 추가
+            schoolIds.push(id);
         }
         // 사용자 정보를 DB에 추가
         await (0, user_1.insertUserInfo)({
             user_email,
             user_name,
             birth_date,
-            school1_id,
+            school1_id: schoolIds[0] || null,
+            school2_id: schoolIds[1] || null,
+            school3_id: schoolIds[2] || null,
             profile_path,
         });
         // 성공 응답

@@ -1,13 +1,9 @@
 import { Router, Request, Response } from 'express';
-import axios from 'axios';
-import {User, School, insertSchoolInfo, insertUserInfo, checkExistingSchool } from './../../../../models/user';
+//db 연결
+import pool from '../../../../loaders/db'
+import {User, insertSchoolInfo, insertUserInfo, checkExistingSchool } from './../../../../models/user';
 require('dotenv').config();
 const router = Router();
-
-//db test
-import pool from '../../../../loaders/db'
-import { RowDataPacket } from 'mysql2';
-import { error } from 'console';
 
 // 라우터 테스트
 router.post("/", async (req: Request, res: Response) => {
@@ -19,7 +15,7 @@ router.post("/", async (req: Request, res: Response) => {
 });
 
 // DB 테스트
-router.post("/test", async (req: Request, res: Response) => {
+router.post("/dbConnect", async (req: Request, res: Response) => {
   try {
     const [rows] = await pool.query('SELECT * FROM user_info');
     res.json(rows);
@@ -36,12 +32,45 @@ router.post("/profile", async (req: Request, res: Response) => {
 });
 
 
-
-
 // 회원가입 라우터
+// front에서 schools 정보 배열로 묶어서 던져달라고 하기.
 router.post("/signup", async (req: Request, res: Response) => {
+
+  // 기존의 schoo1_id, schoo1_name, school1_type, school1_address 를 schools 배열로 묶어서 던져달라고 하기.
+  // school1, 2, 3 정보 모두 그냥 배열로 묶어서.
+  // 이런식으로 던져달라고 하기
+  // {
+  //   "data": {
+  //     "user_email": "example@example.com",
+  //     "user_name": "홍길동",
+  //     "birth_date": "2000-01-01",
+  //     "schools": [
+  //       {
+  //         "id": 1,
+  //         "name": "서울초등학교",
+  //         "type": "초등학교",
+  //         "address": "서울특별시 강남구"
+  //       },
+  //       {
+  //         "id": 2,
+  //         "name": "부산중학교",
+  //         "type": "중학교",
+  //         "address": "부산광역시 해운대구"
+  //       },
+  //       {
+  //         "id": 3,
+  //         "name": "대구고등학교",
+  //         "type": "고등학교",
+  //         "address": "대구광역시 수성구"
+  //       }
+  //     ],
+  //     "profile_path": "/path/to/profile/image.jpg"
+  //   }
+  // }
+
   const { user_email, user_name, birth_date, 
-    school1_id, school1_name, school1_type, school1_address, profile_path } = req.body.data; // school2, 3이 있을 경우 추가
+    schools, // schools 배열을 통해 school1, school2, school3 정보를 수신
+    profile_path } = req.body.data;
 
   // 요청 바디 검증
   const errors = [];
@@ -54,17 +83,25 @@ router.post("/signup", async (req: Request, res: Response) => {
   if (!birth_date || isNaN(Date.parse(birth_date))) {
     errors.push({ message: 'Invalid date format' });
   }
-  if (!school1_id || typeof school1_id !== 'number') {
-    errors.push({ message: 'School ID 1 is required' });
-  }
-  if (!school1_name) {
-    errors.push({ message: 'School Name 1 is required' });
-  }
-  if (!school1_type) {
-    errors.push({ message: 'School Type 1 is required' });
-  }
-  if (!school1_address) {
-    errors.push({ message: 'School Address 1 is required' });
+  
+  // 학교 정보 검증
+  if (!Array.isArray(schools) || schools.length === 0) {
+    errors.push({ message: 'At least one school is required' });
+  } else {
+    schools.forEach((school, index) => {
+      if (!school.id || typeof school.id !== 'number') {
+        errors.push({ message: `School ID ${index + 1} is required` });
+      }
+      if (!school.name) {
+        errors.push({ message: `School Name ${index + 1} is required` });
+      }
+      if (!school.type) {
+        errors.push({ message: `School Type ${index + 1} is required` });
+      }
+      if (!school.address) {
+        errors.push({ message: `School Address ${index + 1} is required` });
+      }
+    });
   }
 
   if (errors.length > 0) {
@@ -72,16 +109,26 @@ router.post("/signup", async (req: Request, res: Response) => {
   }
 
   try {
-    // 학교 정보가 DB에 존재하는지 확인
-    const schoolExists = await checkExistingSchool(school1_id);
+    const schoolIds = []; // 학교 ID를 저장할 배열
 
-    // 학교 정보가 없다면 insertSchoolInfo 함수를 사용하여 추가
-    if (!schoolExists) {
-      await insertSchoolInfo({
-        school_id: school1_id,
-        school_name: school1_name,
-        school_type: school1_type,
-      });
+    // 학교 정보 처리
+    for (const school of schools) {
+      const { id, name, type } = school;
+
+      // 학교 정보가 DB에 존재하는지 확인
+      const schoolExists = await checkExistingSchool(id);
+
+      // 학교 정보가 없다면 insertSchoolInfo 함수를 사용하여 추가
+      if (!schoolExists) {
+        await insertSchoolInfo({
+          school_id: id,
+          school_name: name,
+          school_type: type,
+        });
+      }
+      
+      // 학교 ID를 배열에 추가
+      schoolIds.push(id);
     }
 
     // 사용자 정보를 DB에 추가
@@ -89,7 +136,9 @@ router.post("/signup", async (req: Request, res: Response) => {
       user_email,
       user_name,
       birth_date,
-      school1_id,
+      school1_id: schoolIds[0] || null, // 첫 번째 학교 ID 저장
+      school2_id: schoolIds[1] || null, // 두 번째 학교 ID 저장
+      school3_id: schoolIds[2] || null, // 세 번째 학교 ID 저장
       profile_path,
     } as User);
 
