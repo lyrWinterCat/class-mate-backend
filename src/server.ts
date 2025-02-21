@@ -14,19 +14,20 @@ const sslOptions = {
     cert: fs.readFileSync(config.ssl.certPath), // 환경 변수에서 경로 가져오기
 };
 
-// const server = https.createServer(sslOptions, app).listen(config.server_port, () => {
-//     console.log(`HTTPS Server listening on port: ${config.server_port}`);
-// }).on('error', (err) => {
-//     console.log(`${config.server_port} server error: ${err}`);
-// });
+//https 서버
+const server = https.createServer(sslOptions, app).listen(config.server_port, () => {
+    console.log(`HTTPS Server listening on port: ${config.server_port}`);
+}).on('error', (err) => {
+    console.log(`${config.server_port} server error: ${err}`);
+});
 
 
-
-const server = app.listen(config.server_port,()=>{
-    console.log(`Server listening on port: ${config.server_port}`)
-}) .on('error', (err) => {
-    console.log(`${config.server_port} server error: ${err}`)
-})
+//http 서버
+// const server = app.listen(config.server_port,()=>{
+//     console.log(`Server listening on port: ${config.server_port}`)
+// }) .on('error', (err) => {
+//     console.log(`${config.server_port} server error: ${err}`)
+// })
 
 export default { server }
 
