@@ -1,7 +1,8 @@
 import { Router, Request, Response } from 'express';
 //db 연결
 import pool from '../../../../loaders/db'
-import {User, insertSchoolInfo, insertUserInfo, checkExistingSchool } from './../../../../models/user';
+import {User, insertUserInfo } from './../../../../models/user';
+import {insertSchoolInfo, checkExistingSchool } from './../../../../models/school';
 require('dotenv').config();
 const router = Router();
 

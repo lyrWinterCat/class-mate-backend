@@ -5,6 +5,7 @@ const express_1 = require("express");
 //db 연결
 const db_1 = (0, tslib_1.__importDefault)(require("../../../../loaders/db"));
 const user_1 = require("./../../../../models/user");
+const school_1 = require("./../../../../models/school");
 require('dotenv').config();
 const router = (0, express_1.Router)();
 // 라우터 테스트
@@ -107,10 +108,10 @@ router.post("/signup", async (req, res) => {
         for (const school of schools) {
             const { id, name, type } = school;
             // 학교 정보가 DB에 존재하는지 확인
-            const schoolExists = await (0, user_1.checkExistingSchool)(id);
+            const schoolExists = await (0, school_1.checkExistingSchool)(id);
             // 학교 정보가 없다면 insertSchoolInfo 함수를 사용하여 추가
             if (!schoolExists) {
-                await (0, user_1.insertSchoolInfo)({
+                await (0, school_1.insertSchoolInfo)({
                     school_id: id,
                     school_name: name,
                     school_type: type,
