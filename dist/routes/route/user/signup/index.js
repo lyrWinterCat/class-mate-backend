@@ -6,10 +6,12 @@ const express_1 = require("express");
 const db_1 = (0, tslib_1.__importDefault)(require("../../../../loaders/db"));
 const user_1 = require("./../../../../models/user");
 const school_1 = require("./../../../../models/school");
+const redis_1 = (0, tslib_1.__importDefault)(require("../../../../loaders/redis"));
+const nodemailer_1 = (0, tslib_1.__importDefault)(require("nodemailer"));
 require('dotenv').config();
 const router = (0, express_1.Router)();
 // 라우터 테스트
-router.post("/", async (req, res) => {
+router.post("/test", async (req, res) => {
     try {
         res.status(200).send({ message: "user router is running!" });
     }
@@ -31,6 +33,69 @@ router.post("/dbConnect", async (req, res) => {
 exports.default = router;
 // 회원가입 페이지에서 프로필 요청
 router.post("/profile", async (req, res) => {
+});
+// 회원가입 페이지에서 이메일 인증 요청
+// 랜덤 인증 코드 생성 함수 (8자리 영문+숫자)
+const generateVerificationCode = () => {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    return Array.from({ length: 8 }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
+};
+// Nodemailer 설정 (Gmail 사용)
+const transporter = nodemailer_1.default.createTransport({
+    service: 'gmail',
+    auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS // 앱 비밀번호
+    }
+});
+// 이메일 전송 함수
+const sendVerificationEmail = async (email, code) => {
+    const mailOptions = {
+        from: process.env.EMAIL_USER,
+        to: email,
+        subject: '이메일 인증 코드',
+        text: `회원가입을 완료하려면 다음 인증 코드를 입력하세요: ${code}`
+    };
+    await transporter.sendMail(mailOptions);
+};
+router.post("/sendEmailCode", async (req, res) => {
+    const { email } = req.body;
+    if (!email || !/\S+@\S+\.\S+/.test(email)) {
+        return res.status(400).json({ message: '유효한 이메일을 입력하세요.' });
+    }
+    try {
+        const verificationCode = generateVerificationCode();
+        await sendVerificationEmail(email, verificationCode);
+        // Redis에 이메일 인증 코드 저장 (10분 후 자동 만료)
+        await redis_1.default.setEx(`email_verification:${email}`, 600, verificationCode);
+        res.status(200).json({ message: '인증 코드가 이메일로 전송되었습니다.' });
+    }
+    catch (error) {
+        console.error('Email sending error:', error);
+        res.status(500).json({ message: '이메일 전송 중 오류가 발생했습니다.' });
+    }
+});
+router.post("/verifyEmailCode", async (req, res) => {
+    const { email, code } = req.body;
+    if (!email || !code) {
+        return res.status(400).json({ message: '이메일과 인증 코드를 입력하세요.' });
+    }
+    try {
+        const storedCode = await redis_1.default.get(`email_verification:${email}`);
+        if (!storedCode) {
+            return res.status(400).json({ message: '인증 코드가 만료되었거나 존재하지 않습니다.' });
+        }
+        if (storedCode !== code) {
+            return res.status(400).json({ message: '인증 코드가 올바르지 않습니다.' });
+        }
+        // 인증 성공 후 Redis에서 해당 코드 삭제
+        await redis_1.default.del(`email_verification:${email}`);
+        res.status(200).json({ message: '이메일 인증 성공', verified: true });
+    }
+    catch (error) {
+        console.error('Verification error:', error);
+        res.status(500).json({ message: '서버 오류가 발생했습니다.' });
+    }
 });
 // 회원가입 라우터
 // front에서 schools 정보 배열로 묶어서 던져달라고 하기.
